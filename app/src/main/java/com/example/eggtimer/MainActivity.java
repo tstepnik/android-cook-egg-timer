@@ -13,9 +13,11 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
-    SeekBar timerSeekBar;
-    TextView timerTextView;
-    CountDownTimer countDownTimer;
+    private SeekBar timerSeekBar;
+    private TextView timerTextView;
+    Button controllerButton;
+    private CountDownTimer countDownTimer;
+    private boolean counterIsActive = false;
 
     public void updateTimer(int progress) {
         int minutes = progress / 60;
@@ -35,9 +37,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void controlTimer(View view) {
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
-        }
+
+        if (counterIsActive == false) {
+
+            counterIsActive = true;
+            timerSeekBar.setEnabled(false);
+            controllerButton.setText("STOP");
+
+            if (countDownTimer != null) {
+                countDownTimer.cancel();
+            }
             countDownTimer = new CountDownTimer(timerSeekBar.getProgress() * 1000 + 100, 1000) {
 
                 @Override
@@ -50,11 +59,16 @@ public class MainActivity extends AppCompatActivity {
                 public void onFinish() {
                     timerTextView.setText("00:00");
 
-                    MediaPlayer mplayer = MediaPlayer.create(MainActivity.this,R.raw.airhorn);
+                    MediaPlayer mplayer = MediaPlayer.create(MainActivity.this, R.raw.airhorn);
                     mplayer.start();
                 }
             }.start();
-
+        }else {
+            countDownTimer.cancel();
+            controllerButton.setText("Go!");
+            counterIsActive=false;
+            timerSeekBar.setEnabled(true);
+        }
     }
 
 
@@ -65,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
         timerSeekBar = findViewById(R.id.timerSeekBar);
         timerTextView = findViewById(R.id.timerTextView);
+        controllerButton = findViewById(R.id.controllerButton);
 
         timerSeekBar.setMax(600);
         timerSeekBar.setProgress(30);
@@ -73,9 +88,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 updateTimer(progress);
-                if (countDownTimer != null){
-                    countDownTimer.cancel();
-                }
             }
 
             @Override
